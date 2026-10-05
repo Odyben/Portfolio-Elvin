@@ -1,0 +1,11 @@
+# Local tooling config, not site content (leaks local paths).
+.claude/
+
+# Build brief for the previous design, superseded.
+portfolio-prompt.md
+
+# Source screenshots and pre-optimisation originals. The site serves the
+# WebP versions in project/opt/; these stay local (OneDrive holds them).
+project/*.png
+elvin-original.jpg
+index.backup.html
