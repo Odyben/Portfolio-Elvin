@@ -9,3 +9,9 @@ portfolio-prompt.md
 project/*.png
 elvin-original.jpg
 index.backup.html
+
+# Local dependencies, preview output and redesign source.
+node_modules/
+dist/
+.work/
+redesign.txt
