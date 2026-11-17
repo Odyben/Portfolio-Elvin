@@ -156,30 +156,327 @@ const boot = () => {
     mt.appendChild(c);
   }
 
-  /* ---------- awards rail ---------- */
-  const awRail = $('#awRail');
-  if (awRail) {
-    const step = () => (awRail.querySelector('.aw')?.offsetWidth || 280)
-      + (parseFloat(getComputedStyle(awRail).columnGap) || 18);
-    /* Chrome cancels native smooth scrolling inside a mandatory snap
-       container, so the rail is tweened instead of scrollBy'd. */
-    const nudge = dir => {
-      const max = awRail.scrollWidth - awRail.clientWidth;
-      const to = Math.max(0, Math.min(awRail.scrollLeft + dir * step(), max));
-      if (motion) G.to(awRail, { scrollLeft: to, duration: .55, ease: 'power3.out', overwrite: true });
-      else awRail.scrollLeft = to;
-      sync();
+  /* ---------- work: orbit carousel ----------
+     One master timeline holds every transition back to back, one unit
+     of time per project, and the page scroll scrubs it. So the swing
+     is under the reader's hand: a wheel notch moves the screenshot a
+     little way round the orbit, and nothing fires on its own. A short
+     scrub lag smooths the steps of a mouse wheel, and a soft snap
+     settles on the nearest project once the wheel stops.
+
+     The first cut of this fired a fixed 1.2s timeline whenever the
+     scroll crossed a threshold and then snapped the scrollbar after
+     it. On a mouse wheel that read as scroll, nothing, lurch, jump.
+
+     The stylesheet ships the plain vertical stack and waits for
+     .orb-on before it applies any of the orbit layout, so with no
+     GSAP, under reduced motion, or on a narrow window the section
+     stays a list of readable cards. gsap.matchMedia adds and removes
+     the class together with the tweens, so crossing the breakpoint
+     tears the whole thing down rather than leaving a pinned stage
+     nobody can scroll. */
+  const orb = $('#orb');
+  if (orb) {
+    const projs = $$('.proj', orb);
+    const n = projs.length;
+    const canvas = $('#orbCanvas'), arcEl = $('#orbArc'), live = $('#orbLive');
+    const thumbs = $('#orbThumbs'), pager = $('#orbPager');
+    const headWrap = orb.querySelector('.wrap');
+
+    /* design stage, and the circle the screenshots travel on. The
+       pivot sits far above the stage: it is the transform-origin set
+       on .proj-shot, expressed in stage coordinates. */
+    const CW = 1100, CH = 520;
+    const ORB_X = 275, ORB_Y = -417, ORB_R = 661, ARC_W = 150;
+    const SWING = 56;            // degrees a screenshot travels: enough to clear the stage
+    const VISIBLE = 3;           // thumbnails in the strip window
+    const THUMB = 144;           // thumbnail pitch, stage px
+    const PER = 0.7;             // viewport heights of scroll per transition
+
+    const HIDE_R = 'inset(0% 0% 0% 100%)';  // thin line, wipes in from the right
+    const HIDE_L = 'inset(0% 100% 0% 0%)';  // heavy line, wipes in from the left
+    const SHOW   = 'inset(0% 0% 0% 0%)';
+
+    /* where the band rests behind each project, as [start, end] angles
+       in degrees: 0 points right, 90 straight down from the pivot. */
+    const REST = [[64, 114], [60, 120], [70, 118], [58, 112], [66, 124]];
+    const SWEEP = [46, 136];     // stretched, mid-swap
+    const restFor = i => REST[((i % REST.length) + REST.length) % REST.length];
+
+    /* a thick stroke along the orbit circle, tapering at both ends */
+    const arcPath = (a0, a1, steps = 44) => {
+      const outer = [], inner = [];
+      for (let i = 0; i <= steps; i++) {
+        const t = i / steps;
+        const a = ((a0 + (a1 - a0) * t) * Math.PI) / 180;
+        const h = (ARC_W / 2) * Math.pow(Math.sin(Math.PI * t), 0.45);
+        const c = Math.cos(a), s = Math.sin(a);
+        outer.push(`${(ORB_X + c * (ORB_R + h)).toFixed(1)} ${(ORB_Y + s * (ORB_R + h)).toFixed(1)}`);
+        inner.push(`${(ORB_X + c * (ORB_R - h)).toFixed(1)} ${(ORB_Y + s * (ORB_R - h)).toFixed(1)}`);
+      }
+      return 'M' + outer.join('L') + 'L' + inner.reverse().join('L') + 'Z';
     };
-    /* a disabled arrow at the end of the rail is honest about where you are */
-    const sync = () => requestAnimationFrame(() => {
-      const max = awRail.scrollWidth - awRail.clientWidth;
-      $('#awPrev').disabled = awRail.scrollLeft < 4;
-      $('#awNext').disabled = awRail.scrollLeft > max - 4;
+    const arc = { a0: REST[0][0], a1: REST[0][1] };
+    const drawArc = () => arcEl && arcEl.setAttribute('d', arcPath(arc.a0, arc.a1));
+
+    const parts = i => {
+      const p = projs[i];
+      return {
+        proj: p,
+        shot: p.querySelector('.proj-shot'),
+        eye:  p.querySelector('.eye'),
+        t1:   p.querySelector('.t1'),
+        t2:   p.querySelector('.t2'),
+        body: p.querySelector('.proj-body')
+      };
+    };
+
+    /* ---- pager and thumbnail strip, built from the markup ---- */
+    projs.forEach((p, i) => {
+      const label = p.dataset.label || `Project ${i + 1}`;
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.setAttribute('role', 'tab');
+      dot.setAttribute('aria-label', label);
+      dot.innerHTML = '<i aria-hidden="true"></i>';
+      dot.addEventListener('click', () => go(i));
+      pager.appendChild(dot);
+
+      const cell = document.createElement('div');
+      cell.className = 'orb-thumb';
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      const src = p.querySelector('.proj-shot img').getAttribute('src');
+      btn.innerHTML = `<img src="${src}" alt="" width="144" height="90" loading="lazy" decoding="async"><span></span>`;
+      btn.querySelector('span').textContent = label;
+      btn.addEventListener('click', () => go(i));
+      cell.appendChild(btn);
+      thumbs.appendChild(cell);
     });
-    $('#awNext').addEventListener('click', () => nudge(1));
-    $('#awPrev').addEventListener('click', () => nudge(-1));
-    awRail.addEventListener('scrollend', sync, { passive: true });
-    sync();
+    const dots = $$('button', pager);
+    const thumbBtns = $$('.orb-thumb button', thumbs);
+
+    /* Nothing below touches the DOM until the carousel is running.
+       Without this guard the first paint would hide four of the five
+       projects with an inline style, and the fallback stack would be
+       a single card with no way to reach the rest. */
+    let on = false, at = 0, st = null, master = null, jump = null;
+    const steps = Math.max(1, n - 1);
+
+    const marks = () => {
+      dots.forEach((d, i) => {
+        d.toggleAttribute('aria-current', i === at);
+        d.setAttribute('aria-selected', String(i === at));
+      });
+      thumbBtns.forEach((b, i) => b.toggleAttribute('aria-current', i === at));
+      /* keep the current thumbnail inside the window */
+      const start = n <= VISIBLE ? 0 : Math.max(0, Math.min(at - 1, n - VISIBLE));
+      thumbs.style.transform = `translateX(${-start * THUMB}px)`;
+      if (live) live.textContent = `Project ${at + 1} of ${n}: ${projs[at].dataset.label || ''}`;
+      $('#orbPrev').disabled = at === 0;
+      $('#orbNext').disabled = at === n - 1;
+    };
+
+    /* Every tween states both ends, so scrubbing backwards, or jumping
+       several projects at once, lands on the same frames as playing
+       through. Outgoing parts render their start only when reached;
+       incoming parts pre-render theirs, which is what parks each
+       waiting screenshot round the far side of the orbit. */
+    const build = () => {
+      const tl = G.timeline({ paused: true });
+      projs.forEach((p, i) => G.set(p, { visibility: i === 0 ? 'visible' : 'hidden' }));
+      const first = parts(0);
+      G.set(first.shot, { rotation: 0, autoAlpha: 1 });
+      G.set([first.eye, first.body], { autoAlpha: 1, y: 0 });
+      G.set(first.t1, { clipPath: SHOW });
+      G.set(first.t2, { clipPath: SHOW });
+      arc.a0 = REST[0][0]; arc.a1 = REST[0][1];
+      drawArc();
+      tl.addLabel('p0', 0);
+
+      for (let i = 0; i < n - 1; i++) {
+        const a = parts(i), b = parts(i + 1), t = i;
+        const from = restFor(i), rest = restFor(i + 1);
+        const out = { immediateRender: false };
+        tl
+          /* screenshot: out over the top, the next swings in from the far side */
+          .fromTo(a.shot, { rotation: 0 }, { rotation: SWING, duration: .55, ease: 'power2.in', ...out }, t)
+          .fromTo(a.shot, { autoAlpha: 1 }, { autoAlpha: 0, duration: .22, ease: 'power1.in', ...out }, t + .33)
+          .set(a.proj, { visibility: 'hidden' }, t + .55)
+          .set(b.proj, { visibility: 'visible' }, t + .28)
+          .fromTo(b.shot, { rotation: -SWING }, { rotation: 0, duration: .72, ease: 'power3.out' }, t + .28)
+          .fromTo(b.shot, { autoAlpha: 0 }, { autoAlpha: 1, duration: .25, ease: 'power1.out' }, t + .28)
+          /* title: thin clips away right, heavy left, then the next wipes in */
+          .fromTo(a.t1, { clipPath: SHOW }, { clipPath: HIDE_R, duration: .4, ease: 'power2.in', ...out }, t)
+          .fromTo(a.t2, { clipPath: SHOW }, { clipPath: HIDE_L, duration: .4, ease: 'power2.in', ...out }, t + .05)
+          .fromTo(a.eye, { autoAlpha: 1 }, { autoAlpha: 0, duration: .25, ...out }, t)
+          .fromTo(b.eye, { autoAlpha: 0, y: 6 }, { autoAlpha: 1, y: 0, duration: .35, ease: 'power2.out' }, t + .5)
+          .fromTo(b.t1, { clipPath: HIDE_R }, { clipPath: SHOW, duration: .5, ease: 'power3.out' }, t + .48)
+          .fromTo(b.t2, { clipPath: HIDE_L }, { clipPath: SHOW, duration: .5, ease: 'power3.out' }, t + .5)
+          /* card: cross-fade, then its rows rise in turn. Opacity only on
+             the card itself: it carries a backdrop blur, and moving it
+             would re-blur the backdrop every frame. */
+          .fromTo(a.body, { autoAlpha: 1 }, { autoAlpha: 0, duration: .3, ease: 'power1.in', ...out }, t + .05)
+          .fromTo(b.body, { autoAlpha: 0 }, { autoAlpha: 1, duration: .25, ease: 'power1.out' }, t + .38)
+          .fromTo(b.body.children, { autoAlpha: 0, y: 10 },
+            { autoAlpha: 1, y: 0, duration: .38, stagger: .035, ease: 'power2.out' }, t + .38)
+          /* band: trails between the two, then settles on the next span */
+          .fromTo(arc, { a0: from[0], a1: from[1] },
+            { a0: SWEEP[0], a1: SWEEP[1], duration: .55, ease: 'power2.inOut', onUpdate: drawArc, ...out }, t)
+          .fromTo(arc, { a0: SWEEP[0], a1: SWEEP[1] },
+            { a0: rest[0], a1: rest[1], duration: .45, ease: 'power3.out', onUpdate: drawArc, ...out }, t + .55)
+          .addLabel('p' + (i + 1), t + 1);
+      }
+      return tl;
+    };
+
+    /* buttons, keys and swipes glide the scrollbar to the matching
+       stretch, and the scrub carries the stage along with it */
+    function go(to) {
+      if (!on || !st) return;
+      to = Math.max(0, Math.min(n - 1, to));
+      if (to === at) return;
+      const y0 = st.scroll(), y1 = st.start + ((st.end - st.start) * to) / steps;
+      const o = { y: y0 };
+      jump && jump.kill();
+      jump = G.to(o, {
+        y: y1, duration: .3 + .22 * Math.abs(to - at), ease: 'power2.inOut',
+        onUpdate: () => st.scroll(o.y), onComplete: () => { jump = null; }
+      });
+    }
+    const step = d => go(at + d);
+
+    $('#orbPrev').addEventListener('click', () => step(-1));
+    $('#orbNext').addEventListener('click', () => step(1));
+
+    orb.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight') { e.preventDefault(); step(1); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1); }
+    });
+
+    let sw = null;
+    canvas.addEventListener('pointerdown', e => { if (on) sw = { x: e.clientX, y: e.clientY }; });
+    canvas.addEventListener('pointerup', e => {
+      const s = sw; sw = null;
+      if (!s) return;
+      const dx = e.clientX - s.x;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(e.clientY - s.y) * 1.4) step(dx < 0 ? 1 : -1);
+    });
+    canvas.addEventListener('pointercancel', () => { sw = null; });
+
+    /* Shrink any title line that would run past its column. The sizes
+       in the markup are starting points; the real width depends on the
+       face having loaded. Written back into the custom property so the
+       stacked fallback, which ignores it, is untouched. */
+    const fitTitles = () => {
+      const head = orb.querySelector('.proj-head');
+      if (!head) return;
+      const max = head.clientWidth;
+      $$('.t1, .t2', orb).forEach(el => {
+        el.style.removeProperty('--fs');
+        const w = el.scrollWidth;
+        const fs = parseFloat(getComputedStyle(el).fontSize);
+        if (w > max) el.style.setProperty('--fs', `${Math.floor(fs * max / w)}px`);
+      });
+    };
+
+    if (motion) {
+      const mm = G.matchMedia();
+      mm.add('(min-width: 1021px)', () => {
+        root.classList.add('orb-on');
+        orb.setAttribute('tabindex', '0');
+        on = true;
+        at = 0;
+
+        /* fit the fixed design stage to whatever room is left under
+           the section heading. Measured on resize only. */
+        const fit = () => {
+          const pad = parseFloat(getComputedStyle(headWrap).paddingLeft) || 24;
+          const availW = orb.clientWidth - pad * 2;
+          const availH = innerHeight - orb.querySelector('.orb-head').offsetHeight - 48;
+          orb.style.setProperty('--orb-s', String(Math.max(.45, Math.min(availW / CW, availH / CH))));
+        };
+        fit();
+        const ro = new ResizeObserver(fit);
+        ro.observe(orb);
+        document.fonts.ready.then(() => { if (on) fitTitles(); });
+        fitTitles();
+
+        master = build();
+        marks();
+
+        st = ST.create({
+          trigger: orb,
+          start: 'top top',
+          end: () => '+=' + Math.round(steps * innerHeight * PER),
+          pin: true,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+          animation: master,
+          scrub: .7,
+          snap: {
+            snapTo: 'labels',
+            duration: { min: .2, max: .6 },
+            delay: .05,
+            ease: 'power1.inOut'
+          },
+          onUpdate: self => {
+            const s = Math.round(self.progress * steps);
+            if (s !== at) { at = s; marks(); }
+          }
+        });
+
+        return () => {
+          on = false;
+          ro.disconnect();
+          jump && jump.kill(); jump = null;
+          st && st.kill(); st = null;
+          master && master.kill(); master = null;
+          at = 0;
+          root.classList.remove('orb-on');
+          orb.removeAttribute('tabindex');
+          orb.style.removeProperty('--orb-s');
+          $$('.proj, .proj-shot, .eye, .t1, .t2, .proj-body, .proj-body > *', orb)
+            .forEach(el => G.set(el, { clearProps: 'all' }));
+        };
+      });
+    }
+  }
+
+  /* ---------- magnetic buttons and glass specular highlight ----------
+     Both were declared in the markup and the stylesheet but never had
+     any script behind them. Pointer driven, never scroll driven, and
+     written straight to transform so there is no layout work. */
+  if (fine && !reduce) {
+    $$('.mag').forEach(el => {
+      let raf = 0, tx = 0, ty = 0;
+      /* the independent `translate` property, not `transform`: the button's
+         :active rule owns `transform` and the two would overwrite each other */
+      const apply = () => { raf = 0; el.style.translate = `${tx}px ${ty}px`; };
+      el.addEventListener('pointermove', e => {
+        const r = el.getBoundingClientRect();
+        tx = (e.clientX - (r.left + r.width / 2)) * .22;
+        ty = (e.clientY - (r.top + r.height / 2)) * .32;
+        if (!raf) raf = requestAnimationFrame(apply);
+      });
+      el.addEventListener('pointerleave', () => {
+        tx = ty = 0;
+        if (!raf) raf = requestAnimationFrame(apply);
+      });
+    });
+
+    $$('.glass').forEach(el => {
+      let raf = 0, mx = 50, my = 0;
+      const apply = () => { raf = 0; el.style.setProperty('--mx', mx + '%'); el.style.setProperty('--my', my + '%'); };
+      el.addEventListener('pointerenter', () => el.classList.add('lit'));
+      el.addEventListener('pointerleave', () => el.classList.remove('lit'));
+      el.addEventListener('pointermove', e => {
+        const r = el.getBoundingClientRect();
+        mx = ((e.clientX - r.left) / r.width) * 100;
+        my = ((e.clientY - r.top) / r.height) * 100;
+        if (!raf) raf = requestAnimationFrame(apply);
+      });
+    });
   }
 
   /* ---------- toast ---------- */
@@ -315,12 +612,15 @@ const boot = () => {
       id: '0dde7974-5001-48a6-8146-2580791104ac', idLabel: 'serial number', w: 1164, h: 822 }
   ];
   const GROUPS = [['all', 'All'], ['nvidia', 'NVIDIA'], ['google', 'Google'], ['uol', 'Univ. of London'], ['ibm', 'IBM SkillsBuild'], ['hp', 'HP LIFE']];
-  const SHOWN = 8; /* two clean rows of four on a desktop grid */
+  /* Two clean rows of four on a desktop grid. On a phone the grid is a
+     single column, where eight cards is roughly 3400px of scrolling before
+     the page continues, so start with four and let the button do the rest. */
+  const SHOWN = matchMedia('(max-width: 700px)').matches ? 4 : 8;
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const shortId = id => id.length > 16 ? `${id.slice(0, 8)}...${id.slice(-4)}` : id;
   const alt = c => `${c.title} certificate issued to Elvin Harrizon by ${c.issuer}`;
   const sealFor = c => c.logo
-    ? `<img class="logo" src="https://cdn.simpleicons.org/${c.logo}/141413" alt="" width="26" height="26" loading="lazy">`
+    ? `<img class="logo" src="https://cdn.simpleicons.org/${c.logo}/16201B" alt="" width="26" height="26" loading="lazy">`
     : `<span class="mark">${esc(c.seal)}</span>`;
 
   const grid = $('#certGrid'), moreBtn = $('#certMore');

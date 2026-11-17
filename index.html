@@ -5,33 +5,49 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Elvin Harrizon, Fullstack Developer</title>
 <meta name="description" content="Elvin Harrizon is a fullstack developer in Sarawak. Laravel, Flask and MySQL systems for hospitals, schools and enterprise teams, plus hands-on network and server work.">
-<meta name="theme-color" content="#FAF9F5" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#1A1A18" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F2F1EC" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101411" media="(prefers-color-scheme: dark)">
 <meta property="og:title" content="Elvin Harrizon, Fullstack Developer">
 <meta property="og:description" content="Laravel, Flask and MySQL systems for hospitals, schools and enterprise teams. Based in Sarawak, Malaysia.">
 <meta property="og:type" content="profile">
 <meta property="og:image" content="elvin.jpg">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23D97757'/%3E%3Ctext x='50%25' y='57%25' text-anchor='middle' dominant-baseline='middle' font-family='system-ui,sans-serif' font-size='27' font-weight='700' fill='%23141413'%3EEH%3C/text%3E%3C/svg%3E">
-
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%231C5E42'/%3E%3Ctext x='50%25' y='57%25' text-anchor='middle' dominant-baseline='middle' font-family='system-ui,sans-serif' font-size='27' font-weight='700' fill='%23F2F1EC'%3EEH%3C/text%3E%3C/svg%3E">
 
 <link rel="preconnect" href="https://cdn.simpleicons.org" crossorigin>
+
+<!-- The portrait is the LCP element. Without this it is not discovered
+     until the stylesheets have parsed, and it then queues behind every
+     font: that cost about 3s of load time on a throttled connection. -->
+<link rel="preload" href="elvin.jpg" as="image" fetchpriority="high">
+<!-- The fonts are deliberately not preloaded. Every face carries
+     font-display:swap, so text paints immediately in the fallback and
+     swaps when the real face lands. Preloading them put 180KB of font
+     in front of the LCP image on a throttled connection and made the
+     thing the visitor is actually waiting for arrive later. -->
 <link href="assets/fonts/fonts.css" rel="stylesheet">
-<!-- Phosphor Icons (icon library, not hand-rolled SVG paths) -->
-<link href="vendor/phosphor/regular.css" rel="stylesheet">
-<link href="vendor/phosphor/fill.css" rel="stylesheet">
+<link rel="stylesheet" href="assets/base.css">
+
+<!-- Phosphor Icons (icon library, not hand-rolled SVG paths).
+     Loaded off the critical path: this file is a long class list
+     for decorative glyphs, and blocking first paint on them cost more
+     than the icons are worth. They swap in a moment later. The filled
+     weight was dropped entirely: it was 213KB of CSS and font serving
+     five decorative glyphs that all exist in the regular weight. -->
+<link href="vendor/phosphor/regular.css" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript>
+  <link href="vendor/phosphor/regular.css" rel="stylesheet">
+</noscript>
 <script>
 var _r=document.documentElement;
 _r.classList.add('js');
 try{var _t=localStorage.getItem('theme');if(_t)_r.setAttribute('data-theme',_t);}catch(e){}
-
 </script>
-
-<link rel="stylesheet" href="assets/base.css">
-<link rel="stylesheet" href="assets/portfolio.css">
 </head>
 <body>
 
 <a class="skip-link" href="#work">Skip to work</a>
+<div class="field" aria-hidden="true"><i></i><i></i><i></i></div>
+<div class="grain" aria-hidden="true"></div>
 
 <!-- ============================ NAV ============================ -->
 <header class="nav" id="nav">
@@ -73,37 +89,25 @@ try{var _t=localStorage.getItem('theme');if(_t)_r.setAttribute('data-theme',_t);
 
 <!-- ============================ HERO ============================ -->
 <section class="hero" aria-label="Introduction">
-  <div class="machine-stage" id="machineRoot">
-    <div id="scene" role="img" aria-label="Interactive 3D workshop representing backend, infrastructure, frontend, data and delivery. Drag to rotate."></div>
-    <div id="labels" aria-hidden="true"></div>
-    <div id="tooltip" role="tooltip" aria-label="Workshop station details"><strong></strong><p></p></div>
-    <div class="machine-tools" aria-label="Workshop controls">
-      <span class="machine-caption">Interactive workshop</span>
-      <div class="machine-buttons" role="group" aria-label="Workshop view">
-        <button type="button" data-mode="assembled" aria-pressed="true">Assembled</button>
-        <button type="button" data-mode="stations" aria-pressed="false">Exploded</button>
-        <button type="button" data-camera="overview" aria-label="Reset workshop view"><i class="ph ph-arrow-counter-clockwise" aria-hidden="true"></i></button>
-        <button type="button" id="play" aria-label="Pause the animation"></button>
-      </div>
-    </div>
-    <div id="status" class="sr"><span id="status-text">Machine loading</span></div>
-    <div id="journey" hidden><span id="journey-title"></span><span id="journey-detail"></span><i id="journey-progress"></i></div>
-    <div id="loading" role="status">Assembling the workshop<span></span></div>
-    <div id="error" hidden><strong>Explore the work below</strong><p>The 3D preview is unavailable on this device.</p><a href="#work">View projects <i class="ph ph-arrow-down-right" aria-hidden="true"></i></a></div>
-  </div>
   <div class="wrap hero-in">
     <div class="hero-copy">
-      <span class="chip intro"><i class="live" aria-hidden="true"></i>Open to IT roles in Sarawak</span>
+      <span class="chip"><i class="live" aria-hidden="true"></i>Open to IT roles in Sarawak</span>
       <h1>
         <span class="l"><span>Elvin</span></span>
         <span class="l"><span>Harrizon</span></span>
-        <span class="l role"><span>Fullstack Developer</span></span>
+        <span class="l"><span class="role">Fullstack Developer</span></span>
       </h1>
-      <p class="hero-sub intro">I build Laravel and Flask systems for hospitals, schools and enterprise teams, and keep the networks behind them running.</p>
-      <div class="hero-cta intro">
+      <p class="hero-sub">I build Laravel and Flask systems for hospitals, schools and enterprise teams, and keep the networks behind them running.</p>
+      <div class="hero-cta">
         <a class="btn btn-primary mag" href="#work">View work <i class="ph ph-arrow-down-right" aria-hidden="true"></i></a>
         <a class="btn btn-ghost mag" href="ElvinHarrizonBinMBenlyRyxler-Resume.pdf" download>Download CV <i class="ph ph-download-simple" aria-hidden="true"></i></a>
       </div>
+    </div>
+    <div class="hero-art">
+      <figure class="shot glass">
+        <img src="elvin.jpg" alt="Portrait of Elvin Harrizon" width="1040" height="1175" fetchpriority="high" decoding="async">
+      </figure>
+      <span class="glow" aria-hidden="true"></span>
     </div>
   </div>
 </section>
@@ -121,51 +125,73 @@ try{var _t=localStorage.getItem('theme');if(_t)_r.setAttribute('data-theme',_t);
   <div class="marq" role="img" aria-label="Technologies used: Laravel, PHP, Python, Flask, JavaScript, TypeScript, React, Next.js, Node.js, Tailwind CSS, MySQL, MongoDB, Firebase, Kotlin, Java, Git, GitHub, Figma, Postman, Bootstrap, Android Studio, IntelliJ IDEA">
     <div class="marq-t" id="marqT">
       <div class="marq-g">
-        <img class="logo" src="https://cdn.simpleicons.org/laravel/141413" alt="" width="26" height="26" loading="lazy">
-        <img class="logo" src="https://cdn.simpleicons.org/php/141413" alt="" width="26" height="26" loading="lazy">
-        <img class="logo" src="https://cdn.simpleicons.org/python/141413" alt="" width="26" height="26" loading="lazy">
-        <img class="logo" src="https://cdn.simpleicons.org/flask/141413" alt="" width="26" height="26" loading="lazy">
-        <img class="logo" src="https://cdn.simpleicons.org/javascript/141413" alt="" width="26" height="26" loading="lazy">
-        <img class="logo" src="https://cdn.simpleicons.org/typescript/141413" alt="" width="26" height="26" loading="lazy">
-        <img class="logo" src="https://cdn.simpleicons.org/react/141413" alt="" width="26" height="26" loading="lazy">
-        <img class="logo" src="https://cdn.simpleicons.org/nextdotjs/141413" alt="" width="26" height="26" loading="lazy">
-        <img class="logo" src="https://cdn.simpleicons.org/nodedotjs/141413" alt="" width="26" height="26" loading="lazy">
-        <img class="logo" src="https://cdn.simpleicons.org/tailwindcss/141413" alt="" width="26" height="26" loading="lazy">
-        <img class="logo" src="https://cdn.simpleicons.org/mysql/141413" alt="" width="26" height="26" loading="lazy">
-        <img class="logo" src="https://cdn.simpleicons.org/mongodb/141413" alt="" width="26" height="26" loading="lazy">
-        <img class="logo" src="https://cdn.simpleicons.org/firebase/141413" alt="" width="26" height="26" loading="lazy">
-        <img class="logo" src="https://cdn.simpleicons.org/kotlin/141413" alt="" width="26" height="26" loading="lazy">
-        <img class="logo" src="https://cdn.simpleicons.org/openjdk/141413" alt="" width="26" height="26" loading="lazy">
-        <img class="logo" src="https://cdn.simpleicons.org/git/141413" alt="" width="26" height="26" loading="lazy">
-        <img class="logo" src="https://cdn.simpleicons.org/github/141413" alt="" width="26" height="26" loading="lazy">
-        <img class="logo" src="https://cdn.simpleicons.org/figma/141413" alt="" width="26" height="26" loading="lazy">
-        <img class="logo" src="https://cdn.simpleicons.org/postman/141413" alt="" width="26" height="26" loading="lazy">
-        <img class="logo" src="https://cdn.simpleicons.org/bootstrap/141413" alt="" width="26" height="26" loading="lazy">
-        <img class="logo" src="https://cdn.simpleicons.org/androidstudio/141413" alt="" width="26" height="26" loading="lazy">
-        <img class="logo" src="https://cdn.simpleicons.org/intellijidea/141413" alt="" width="26" height="26" loading="lazy">
+        <img class="logo" src="https://cdn.simpleicons.org/laravel/16201B" alt="" width="26" height="26" loading="lazy">
+        <img class="logo" src="https://cdn.simpleicons.org/php/16201B" alt="" width="26" height="26" loading="lazy">
+        <img class="logo" src="https://cdn.simpleicons.org/python/16201B" alt="" width="26" height="26" loading="lazy">
+        <img class="logo" src="https://cdn.simpleicons.org/flask/16201B" alt="" width="26" height="26" loading="lazy">
+        <img class="logo" src="https://cdn.simpleicons.org/javascript/16201B" alt="" width="26" height="26" loading="lazy">
+        <img class="logo" src="https://cdn.simpleicons.org/typescript/16201B" alt="" width="26" height="26" loading="lazy">
+        <img class="logo" src="https://cdn.simpleicons.org/react/16201B" alt="" width="26" height="26" loading="lazy">
+        <img class="logo" src="https://cdn.simpleicons.org/nextdotjs/16201B" alt="" width="26" height="26" loading="lazy">
+        <img class="logo" src="https://cdn.simpleicons.org/nodedotjs/16201B" alt="" width="26" height="26" loading="lazy">
+        <img class="logo" src="https://cdn.simpleicons.org/tailwindcss/16201B" alt="" width="26" height="26" loading="lazy">
+        <img class="logo" src="https://cdn.simpleicons.org/mysql/16201B" alt="" width="26" height="26" loading="lazy">
+        <img class="logo" src="https://cdn.simpleicons.org/mongodb/16201B" alt="" width="26" height="26" loading="lazy">
+        <img class="logo" src="https://cdn.simpleicons.org/firebase/16201B" alt="" width="26" height="26" loading="lazy">
+        <img class="logo" src="https://cdn.simpleicons.org/kotlin/16201B" alt="" width="26" height="26" loading="lazy">
+        <img class="logo" src="https://cdn.simpleicons.org/openjdk/16201B" alt="" width="26" height="26" loading="lazy">
+        <img class="logo" src="https://cdn.simpleicons.org/git/16201B" alt="" width="26" height="26" loading="lazy">
+        <img class="logo" src="https://cdn.simpleicons.org/github/16201B" alt="" width="26" height="26" loading="lazy">
+        <img class="logo" src="https://cdn.simpleicons.org/figma/16201B" alt="" width="26" height="26" loading="lazy">
+        <img class="logo" src="https://cdn.simpleicons.org/postman/16201B" alt="" width="26" height="26" loading="lazy">
+        <img class="logo" src="https://cdn.simpleicons.org/bootstrap/16201B" alt="" width="26" height="26" loading="lazy">
+        <img class="logo" src="https://cdn.simpleicons.org/androidstudio/16201B" alt="" width="26" height="26" loading="lazy">
+        <img class="logo" src="https://cdn.simpleicons.org/intellijidea/16201B" alt="" width="26" height="26" loading="lazy">
       </div>
     </div>
   </div>
 </section>
 
-<!-- ============================ WORK ============================ -->
+<!-- ============================ WORK ============================
+     Orbit carousel. The section pins; each stretch of scroll swings the
+     current screenshot out over the top on a wide orbit while the next
+     swings in from the other side. The two-weight title wipes out and
+     back in, the detail card cross-fades, and the band behind the stage
+     stretches between the two plates and then resettles.
+
+     Every project is one <article> holding its own screenshot, title and
+     body, so with no JS, under reduced motion, or on a phone the whole
+     section is a plain stack of readable cards. The orbit layout applies
+     only under .orb-on, which the script adds once it has actually wired
+     the carousel up.
+     ============================================================= -->
 <section class="sec" id="work">
-  <div class="wrap">
-    <div class="sec-h" data-rise>
-      <h2>Systems I have shipped</h2>
-      <p>Five builds for a hospital, a school, an enterprise vendor team, an optical store and a polytechnic programme.</p>
+  <div class="orb" id="orb">
+    <div class="wrap orb-head">
+      <div class="sec-h" data-rise>
+        <h2>Systems I have shipped</h2>
+        <p>Five builds for a hospital, a school, an enterprise vendor team, an optical store and a polytechnic programme.</p>
+      </div>
     </div>
-  </div>
 
-  <div class="stack" id="stack">
+    <div class="orb-canvas" id="orbCanvas">
+     <div class="orb-stage">
+      <svg class="orb-arc" viewBox="0 0 1100 560" aria-hidden="true"><path id="orbArc"></path></svg>
 
-    <!-- Vendor Management System -->
-    <div class="stack-i">
-      <div class="wrap">
-        <article class="panel glass">
-          <div>
-            <div class="meta"><span class="chip">2026</span><span class="chip">Enterprise</span><span class="chip">Sarawak Energy</span></div>
-            <h3>Vendor Management System</h3>
+      <div class="orb-pager" id="orbPager" role="tablist" aria-label="Choose a project"></div>
+
+      <div class="orb-track" id="orbTrack">
+
+        <article class="proj glass" data-label="Vendor Management">
+          <figure class="proj-shot">
+            <img src="project/opt/vms.webp" alt="The Sarawak Energy vendor portal landing page, with the vendor portal sign in" width="1400" height="782" loading="lazy" decoding="async">
+          </figure>
+          <div class="proj-head">
+            <p class="eye">2026 &middot; Sarawak Energy</p>
+            <h3><span class="t1" style="--fs:50px">Vendor</span><span class="t2" style="--fs:36px">Management System</span></h3>
+          </div>
+          <div class="proj-body">
+            <div class="meta"><span class="chip">2026</span><span class="chip">Enterprise</span></div>
             <p class="role">Fullstack Developer, full SDLC</p>
             <p class="desc">Reads vendor PDFs, extracts the data automatically and turns it into presentation reports. I took it from requirements gathering through to deployment.</p>
             <ul class="pts">
@@ -175,27 +201,25 @@ try{var _t=localStorage.getItem('theme');if(_t)_r.setAttribute('data-theme',_t);
             </ul>
             <div class="foot">
               <div class="logos">
-                <img class="logo" src="https://cdn.simpleicons.org/python/141413" alt="Python" width="20" height="20" loading="lazy">
-                <img class="logo" src="https://cdn.simpleicons.org/flask/141413" alt="Flask" width="20" height="20" loading="lazy">
-                <img class="logo" src="https://cdn.simpleicons.org/javascript/141413" alt="JavaScript" width="20" height="20" loading="lazy">
+                <img class="logo" src="https://cdn.simpleicons.org/python/16201B" alt="Python" width="20" height="20" loading="lazy">
+                <img class="logo" src="https://cdn.simpleicons.org/flask/16201B" alt="Flask" width="20" height="20" loading="lazy">
+                <img class="logo" src="https://cdn.simpleicons.org/javascript/16201B" alt="JavaScript" width="20" height="20" loading="lazy">
               </div>
-              <span class="cert-note">PDF.js, PptxGenJS, data pipelines</span>
+              <span class="cert-note">PDF.js, PptxGenJS</span>
             </div>
           </div>
-          <figure class="snap">
-            <img src="project/opt/vms.webp" alt="The Sarawak Energy vendor portal landing page, with the vendor portal sign in" width="1400" height="782" loading="lazy" decoding="async">
-          </figure>
         </article>
-      </div>
-    </div>
 
-    <!-- Intranet Hospital Serian -->
-    <div class="stack-i">
-      <div class="wrap">
-        <article class="panel glass">
-          <div>
-            <div class="meta"><span class="chip">2026</span><span class="chip">Healthcare</span><span class="chip">Hospital Serian</span></div>
-            <h3>Intranet Hospital Serian</h3>
+        <article class="proj glass" data-label="Intranet Hospital Serian">
+          <figure class="proj-shot">
+            <img src="project/opt/intranet.webp" alt="The Hospital Serian intranet home page, with navigation for documents, forms and the staff directory" width="1052" height="1012" loading="lazy" decoding="async">
+          </figure>
+          <div class="proj-head">
+            <p class="eye">2026 &middot; Hospital Serian</p>
+            <h3><span class="t1" style="--fs:46px">Intranet</span><span class="t2" style="--fs:38px">Hospital Serian</span></h3>
+          </div>
+          <div class="proj-body">
+            <div class="meta"><span class="chip">2026</span><span class="chip">Healthcare</span></div>
             <p class="role">Fullstack Developer</p>
             <p class="desc">One portal for hospital staff: internal announcements, official policy documents, digital KKM forms and a searchable staff extension directory.</p>
             <ul class="pts">
@@ -205,31 +229,28 @@ try{var _t=localStorage.getItem('theme');if(_t)_r.setAttribute('data-theme',_t);
             </ul>
             <div class="foot">
               <div class="logos">
-                <img class="logo" src="https://cdn.simpleicons.org/laravel/141413" alt="Laravel" width="20" height="20" loading="lazy">
-                <img class="logo" src="https://cdn.simpleicons.org/php/141413" alt="PHP" width="20" height="20" loading="lazy">
-                <img class="logo" src="https://cdn.simpleicons.org/tailwindcss/141413" alt="Tailwind CSS" width="20" height="20" loading="lazy">
-                <img class="logo" src="https://cdn.simpleicons.org/mysql/141413" alt="MySQL" width="20" height="20" loading="lazy">
+                <img class="logo" src="https://cdn.simpleicons.org/laravel/16201B" alt="Laravel" width="20" height="20" loading="lazy">
+                <img class="logo" src="https://cdn.simpleicons.org/php/16201B" alt="PHP" width="20" height="20" loading="lazy">
+                <img class="logo" src="https://cdn.simpleicons.org/tailwindcss/16201B" alt="Tailwind CSS" width="20" height="20" loading="lazy">
+                <img class="logo" src="https://cdn.simpleicons.org/mysql/16201B" alt="MySQL" width="20" height="20" loading="lazy">
               </div>
-              <span class="cert-note">REST API, Blade, queue jobs</span>
+              <span class="cert-note">REST API, Blade</span>
             </div>
           </div>
-          <figure class="snap">
-            <img src="project/opt/intranet.webp" alt="The Hospital Serian intranet home page, with navigation for documents, forms and the staff directory" width="1052" height="1012" loading="lazy" decoding="async">
-          </figure>
         </article>
-      </div>
-    </div>
 
-    <!-- Optical World -->
-    <div class="stack-i">
-      <div class="wrap">
-        <article class="panel glass">
-          <div>
-            <div class="meta"><span class="chip">2025</span><span class="chip">Retail</span><span class="chip solid">Gold award</span></div>
-            <h3>Optical World</h3>
+        <article class="proj glass" data-label="Optical World">
+          <figure class="proj-shot">
+            <img src="project/opt/optical-world.webp" alt="The Optical World admin dashboard, with revenue, order counts and a sales chart" width="1197" height="578" loading="lazy" decoding="async">
+          </figure>
+          <div class="proj-head">
+            <p class="eye">2025 &middot; Gold award</p>
+            <h3><span class="t1" style="--fs:52px">Optical</span><span class="t2" style="--fs:58px">World</span></h3>
+          </div>
+          <div class="proj-body">
+            <div class="meta"><span class="chip">2025</span><span class="chip solid">Gold award</span></div>
             <p class="role">Fullstack Developer</p>
             <p class="desc">A web and mobile store for an optical shop. Customers try frames on virtually, and staff run inventory and sales from an admin panel.</p>
-            <span class="gold"><i class="ph ph-medal" aria-hidden="true"></i>Gold Award, POLIKU Research and Innovation Exhibition 2025</span>
             <ul class="pts">
               <li><i class="ph ph-check" aria-hidden="true"></i>AR and AI virtual try-on for frames</li>
               <li><i class="ph ph-check" aria-hidden="true"></i>Storefront on both web and mobile</li>
@@ -237,29 +258,27 @@ try{var _t=localStorage.getItem('theme');if(_t)_r.setAttribute('data-theme',_t);
             </ul>
             <div class="foot">
               <div class="logos">
-                <img class="logo" src="https://cdn.simpleicons.org/php/141413" alt="PHP" width="20" height="20" loading="lazy">
-                <img class="logo" src="https://cdn.simpleicons.org/nodedotjs/141413" alt="Node.js" width="20" height="20" loading="lazy">
-                <img class="logo" src="https://cdn.simpleicons.org/mysql/141413" alt="MySQL" width="20" height="20" loading="lazy">
-                <img class="logo" src="https://cdn.simpleicons.org/tailwindcss/141413" alt="Tailwind CSS" width="20" height="20" loading="lazy">
+                <img class="logo" src="https://cdn.simpleicons.org/php/16201B" alt="PHP" width="20" height="20" loading="lazy">
+                <img class="logo" src="https://cdn.simpleicons.org/nodedotjs/16201B" alt="Node.js" width="20" height="20" loading="lazy">
+                <img class="logo" src="https://cdn.simpleicons.org/mysql/16201B" alt="MySQL" width="20" height="20" loading="lazy">
+                <img class="logo" src="https://cdn.simpleicons.org/tailwindcss/16201B" alt="Tailwind CSS" width="20" height="20" loading="lazy">
               </div>
-              <span class="cert-note">AR try-on, admin panel</span>
+              <span class="cert-note">AR try-on</span>
             </div>
           </div>
-          <figure class="snap">
-            <img src="project/opt/optical-world.webp" alt="The Optical World admin dashboard, with revenue, order counts and a sales chart" width="1197" height="578" loading="lazy" decoding="async">
-          </figure>
         </article>
-      </div>
-    </div>
 
-    <!-- SK Bendang Siam -->
-    <div class="stack-i">
-      <div class="wrap">
-        <article class="panel glass">
-          <div>
-            <div class="meta"><span class="chip">2026</span><span class="chip">Education</span><span class="chip">Perak</span></div>
-            <h3>SK Bendang Siam Web System</h3>
-            <p class="role">Backend Developer, with the school's developer</p>
+        <article class="proj glass" data-label="SK Bendang Siam">
+          <figure class="proj-shot">
+            <img src="project/opt/sk-bendang-siam.webp" alt="The SK Bendang Siam admin dashboard, with counts for administrators, teachers and school modules" width="1400" height="697" loading="lazy" decoding="async">
+          </figure>
+          <div class="proj-head">
+            <p class="eye">2026 &middot; Perak</p>
+            <h3><span class="t1" style="--fs:34px">SK Bendang Siam</span><span class="t2" style="--fs:46px">Web System</span></h3>
+          </div>
+          <div class="proj-body">
+            <div class="meta"><span class="chip">2026</span><span class="chip">Education</span></div>
+            <p class="role">Backend Developer, with the school&rsquo;s developer</p>
             <p class="desc">School system with an information hub, a student result portal and an admin dashboard for student and academic data. I built the backend.</p>
             <ul class="pts">
               <li><i class="ph ph-check" aria-hidden="true"></i>Student result portal</li>
@@ -268,27 +287,25 @@ try{var _t=localStorage.getItem('theme');if(_t)_r.setAttribute('data-theme',_t);
             </ul>
             <div class="foot">
               <div class="logos">
-                <img class="logo" src="https://cdn.simpleicons.org/php/141413" alt="PHP" width="20" height="20" loading="lazy">
-                <img class="logo" src="https://cdn.simpleicons.org/mysql/141413" alt="MySQL" width="20" height="20" loading="lazy">
-                <img class="logo" src="https://cdn.simpleicons.org/javascript/141413" alt="JavaScript" width="20" height="20" loading="lazy">
+                <img class="logo" src="https://cdn.simpleicons.org/php/16201B" alt="PHP" width="20" height="20" loading="lazy">
+                <img class="logo" src="https://cdn.simpleicons.org/mysql/16201B" alt="MySQL" width="20" height="20" loading="lazy">
+                <img class="logo" src="https://cdn.simpleicons.org/javascript/16201B" alt="JavaScript" width="20" height="20" loading="lazy">
               </div>
-              <span class="cert-note">HTML, CSS, schema design</span>
+              <span class="cert-note">Schema design</span>
             </div>
           </div>
-          <figure class="snap">
-            <img src="project/opt/sk-bendang-siam.webp" alt="The SK Bendang Siam admin dashboard, with counts for administrators, teachers and school modules" width="1400" height="697" loading="lazy" decoding="async">
-          </figure>
         </article>
-      </div>
-    </div>
 
-    <!-- Cell Canvas -->
-    <div class="stack-i">
-      <div class="wrap">
-        <article class="panel glass">
-          <div>
-            <div class="meta"><span class="chip">2025</span><span class="chip">Entrepreneurship</span><span class="chip">Politeknik Ungku Omar</span></div>
-            <h3>Cell Canvas Learning Lab</h3>
+        <article class="proj glass" data-label="Cell Canvas Learning Lab">
+          <figure class="proj-shot">
+            <img src="project/opt/cell-canvas.webp" alt="The Cell Canvas landing page, with the interactive Business Model Canvas preview" width="1400" height="748" loading="lazy" decoding="async">
+          </figure>
+          <div class="proj-head">
+            <p class="eye">2025 &middot; Politeknik Ungku Omar</p>
+            <h3><span class="t1" style="--fs:42px">Cell Canvas</span><span class="t2" style="--fs:42px">Learning Lab</span></h3>
+          </div>
+          <div class="proj-body">
+            <div class="meta"><span class="chip">2025</span><span class="chip">Entrepreneurship</span></div>
             <p class="role">Co-Innovator and Fullstack Developer</p>
             <p class="desc">An interactive learning app for entrepreneurs. The financial planner walks a user through their numbers, then exports the finished plan.</p>
             <ul class="pts">
@@ -298,21 +315,31 @@ try{var _t=localStorage.getItem('theme');if(_t)_r.setAttribute('data-theme',_t);
             </ul>
             <div class="foot">
               <div class="logos">
-                <img class="logo" src="https://cdn.simpleicons.org/php/141413" alt="PHP" width="20" height="20" loading="lazy">
-                <img class="logo" src="https://cdn.simpleicons.org/javascript/141413" alt="JavaScript" width="20" height="20" loading="lazy">
-                <img class="logo" src="https://cdn.simpleicons.org/tailwindcss/141413" alt="Tailwind CSS" width="20" height="20" loading="lazy">
-                <img class="logo" src="https://cdn.simpleicons.org/bootstrap/141413" alt="Bootstrap" width="20" height="20" loading="lazy">
+                <img class="logo" src="https://cdn.simpleicons.org/php/16201B" alt="PHP" width="20" height="20" loading="lazy">
+                <img class="logo" src="https://cdn.simpleicons.org/javascript/16201B" alt="JavaScript" width="20" height="20" loading="lazy">
+                <img class="logo" src="https://cdn.simpleicons.org/tailwindcss/16201B" alt="Tailwind CSS" width="20" height="20" loading="lazy">
+                <img class="logo" src="https://cdn.simpleicons.org/bootstrap/16201B" alt="Bootstrap" width="20" height="20" loading="lazy">
               </div>
-              <span class="cert-note">HTML, CSS, client-side export</span>
+              <span class="cert-note">Client-side export</span>
             </div>
           </div>
-          <figure class="snap">
-            <img src="project/opt/cell-canvas.webp" alt="The Cell Canvas landing page, with the interactive Business Model Canvas preview" width="1400" height="748" loading="lazy" decoding="async">
-          </figure>
         </article>
+
       </div>
+
+      <div class="orb-strip" id="orbStrip">
+        <button class="icon-btn orb-arrow" type="button" id="orbPrev" aria-label="Previous project">
+          <i class="ph ph-caret-left" aria-hidden="true"></i>
+        </button>
+        <div class="orb-win"><div class="orb-thumbs" id="orbThumbs"></div></div>
+        <button class="icon-btn orb-arrow" type="button" id="orbNext" aria-label="Next project">
+          <i class="ph ph-caret-right" aria-hidden="true"></i>
+        </button>
+      </div>
+     </div>
     </div>
 
+    <p class="sr" id="orbLive" aria-live="polite"></p>
   </div>
 </section>
 
@@ -397,14 +424,14 @@ try{var _t=localStorage.getItem('theme');if(_t)_r.setAttribute('data-theme',_t);
       <article class="cell glass c2" data-rise>
         <h3>Frontend</h3>
         <p>Responsive interfaces that people use every day, on whatever device they bring.</p>
-        <div class="logos" style="gap:18px;margin-top:4px">
-          <img class="logo" style="width:28px;height:28px" src="https://cdn.simpleicons.org/javascript/141413" alt="JavaScript" width="28" height="28" loading="lazy">
-          <img class="logo" style="width:28px;height:28px" src="https://cdn.simpleicons.org/typescript/141413" alt="TypeScript" width="28" height="28" loading="lazy">
-          <img class="logo" style="width:28px;height:28px" src="https://cdn.simpleicons.org/react/141413" alt="React" width="28" height="28" loading="lazy">
-          <img class="logo" style="width:28px;height:28px" src="https://cdn.simpleicons.org/nextdotjs/141413" alt="Next.js" width="28" height="28" loading="lazy">
-          <img class="logo" style="width:28px;height:28px" src="https://cdn.simpleicons.org/tailwindcss/141413" alt="Tailwind CSS" width="28" height="28" loading="lazy">
-          <img class="logo" style="width:28px;height:28px" src="https://cdn.simpleicons.org/html5/141413" alt="HTML5" width="28" height="28" loading="lazy">
-          <img class="logo" style="width:28px;height:28px" src="https://cdn.simpleicons.org/css/141413" alt="CSS" width="28" height="28" loading="lazy">
+        <div class="logos lg">
+          <img class="logo" src="https://cdn.simpleicons.org/javascript/16201B" alt="JavaScript" width="28" height="28" loading="lazy">
+          <img class="logo" src="https://cdn.simpleicons.org/typescript/16201B" alt="TypeScript" width="28" height="28" loading="lazy">
+          <img class="logo" src="https://cdn.simpleicons.org/react/16201B" alt="React" width="28" height="28" loading="lazy">
+          <img class="logo" src="https://cdn.simpleicons.org/nextdotjs/16201B" alt="Next.js" width="28" height="28" loading="lazy">
+          <img class="logo" src="https://cdn.simpleicons.org/tailwindcss/16201B" alt="Tailwind CSS" width="28" height="28" loading="lazy">
+          <img class="logo" src="https://cdn.simpleicons.org/html5/16201B" alt="HTML5" width="28" height="28" loading="lazy">
+          <img class="logo" src="https://cdn.simpleicons.org/css/16201B" alt="CSS" width="28" height="28" loading="lazy">
         </div>
         <ul class="tags"><li>Accessible markup</li><li>Design systems</li><li>Bilingual UI</li></ul>
       </article>
@@ -412,10 +439,10 @@ try{var _t=localStorage.getItem('theme');if(_t)_r.setAttribute('data-theme',_t);
       <article class="cell glass c3" data-rise>
         <h3>Data</h3>
         <p>Schemas, pipelines and the reporting that sits on top of them.</p>
-        <div class="logos" style="gap:18px;margin-top:4px">
-          <img class="logo" style="width:28px;height:28px" src="https://cdn.simpleicons.org/mysql/141413" alt="MySQL" width="28" height="28" loading="lazy">
-          <img class="logo" style="width:28px;height:28px" src="https://cdn.simpleicons.org/mongodb/141413" alt="MongoDB" width="28" height="28" loading="lazy">
-          <img class="logo" style="width:28px;height:28px" src="https://cdn.simpleicons.org/firebase/141413" alt="Firebase" width="28" height="28" loading="lazy">
+        <div class="logos lg">
+          <img class="logo" src="https://cdn.simpleicons.org/mysql/16201B" alt="MySQL" width="28" height="28" loading="lazy">
+          <img class="logo" src="https://cdn.simpleicons.org/mongodb/16201B" alt="MongoDB" width="28" height="28" loading="lazy">
+          <img class="logo" src="https://cdn.simpleicons.org/firebase/16201B" alt="Firebase" width="28" height="28" loading="lazy">
         </div>
         <ul class="tags"><li>Schema design</li><li>Data pipelines</li><li>Analytics and mining</li></ul>
       </article>
@@ -435,15 +462,15 @@ try{var _t=localStorage.getItem('theme');if(_t)_r.setAttribute('data-theme',_t);
       <article class="cell glass c5" data-rise>
         <h3>Tooling</h3>
         <p>Where the work actually gets done.</p>
-        <div class="logos" style="gap:18px;margin-top:4px">
-          <img class="logo" style="width:26px;height:26px" src="https://cdn.simpleicons.org/git/141413" alt="Git" width="26" height="26" loading="lazy">
-          <img class="logo" style="width:26px;height:26px" src="https://cdn.simpleicons.org/github/141413" alt="GitHub" width="26" height="26" loading="lazy">
-          <img class="logo" style="width:26px;height:26px" src="https://cdn.simpleicons.org/postman/141413" alt="Postman" width="26" height="26" loading="lazy">
-          <img class="logo" style="width:26px;height:26px" src="https://cdn.simpleicons.org/figma/141413" alt="Figma" width="26" height="26" loading="lazy">
-          <img class="logo" style="width:26px;height:26px" src="https://cdn.simpleicons.org/androidstudio/141413" alt="Android Studio" width="26" height="26" loading="lazy">
-          <img class="logo" style="width:26px;height:26px" src="https://cdn.simpleicons.org/intellijidea/141413" alt="IntelliJ IDEA" width="26" height="26" loading="lazy">
-          <img class="logo" style="width:26px;height:26px" src="https://cdn.simpleicons.org/apachenetbeanside/141413" alt="NetBeans" width="26" height="26" loading="lazy">
-          <img class="logo" style="width:26px;height:26px" src="https://cdn.simpleicons.org/xampp/141413" alt="XAMPP" width="26" height="26" loading="lazy">
+        <div class="logos lg">
+          <img class="logo" src="https://cdn.simpleicons.org/git/16201B" alt="Git" width="26" height="26" loading="lazy">
+          <img class="logo" src="https://cdn.simpleicons.org/github/16201B" alt="GitHub" width="26" height="26" loading="lazy">
+          <img class="logo" src="https://cdn.simpleicons.org/postman/16201B" alt="Postman" width="26" height="26" loading="lazy">
+          <img class="logo" src="https://cdn.simpleicons.org/figma/16201B" alt="Figma" width="26" height="26" loading="lazy">
+          <img class="logo" src="https://cdn.simpleicons.org/androidstudio/16201B" alt="Android Studio" width="26" height="26" loading="lazy">
+          <img class="logo" src="https://cdn.simpleicons.org/intellijidea/16201B" alt="IntelliJ IDEA" width="26" height="26" loading="lazy">
+          <img class="logo" src="https://cdn.simpleicons.org/apachenetbeanside/16201B" alt="NetBeans" width="26" height="26" loading="lazy">
+          <img class="logo" src="https://cdn.simpleicons.org/xampp/16201B" alt="XAMPP" width="26" height="26" loading="lazy">
         </div>
         <ul class="tags"><li>VS Code</li><li>Antigravity IDE</li></ul>
       </article>
@@ -451,11 +478,11 @@ try{var _t=localStorage.getItem('theme');if(_t)_r.setAttribute('data-theme',_t);
       <article class="cell glass c6" data-rise>
         <h3>AI in the workflow</h3>
         <p>Used daily, and integrated into systems where it earns its place.</p>
-        <div class="logos" style="gap:18px;margin-top:4px">
-          <img class="logo" style="width:26px;height:26px" src="https://cdn.simpleicons.org/claude/141413" alt="Claude" width="26" height="26" loading="lazy">
-          <img class="logo" style="width:26px;height:26px" src="https://cdn.simpleicons.org/googlegemini/141413" alt="Google Gemini" width="26" height="26" loading="lazy">
-          <img class="logo" style="width:26px;height:26px" src="https://cdn.simpleicons.org/githubcopilot/141413" alt="GitHub Copilot" width="26" height="26" loading="lazy">
-          <img class="logo" style="width:26px;height:26px" src="https://cdn.simpleicons.org/perplexity/141413" alt="Perplexity" width="26" height="26" loading="lazy">
+        <div class="logos lg">
+          <img class="logo" src="https://cdn.simpleicons.org/claude/16201B" alt="Claude" width="30" height="30" loading="lazy">
+          <img class="logo" src="https://cdn.simpleicons.org/googlegemini/16201B" alt="Google Gemini" width="30" height="30" loading="lazy">
+          <img class="logo" src="https://cdn.simpleicons.org/githubcopilot/16201B" alt="GitHub Copilot" width="30" height="30" loading="lazy">
+          <img class="logo" src="https://cdn.simpleicons.org/perplexity/16201B" alt="Perplexity" width="30" height="30" loading="lazy">
         </div>
         <ul class="tags"><li>ChatGPT</li><li>NotebookLM</li><li>Local LLM agents</li></ul>
       </article>
@@ -471,36 +498,42 @@ try{var _t=localStorage.getItem('theme');if(_t)_r.setAttribute('data-theme',_t);
       <p>Results in web technology and innovation competitions since 2022, plus twelve certifications.</p>
     </div>
 
-    <div class="rail-x" id="awRail">
-      <article class="aw glass">
-        <span class="yr">2026</span><i class="ph-fill ph-medal" aria-hidden="true"></i>
-        <h3><span class="rank">Gold Medal</span>, iNEXTECH 2025</h3>
-        <p>3rd International Next-Generation Innovation and Technology Exposition, UiTM Cawangan Melaka</p>
+    <div class="aw-list">
+      <article class="aw" data-rise>
+        <span class="yr">2026</span><i class="ph ph-medal" aria-hidden="true"></i>
+        <div>
+          <h3><span class="rank">Gold Medal</span>, iNEXTECH 2025</h3>
+          <p>3rd International Next-Generation Innovation and Technology Exposition, UiTM Cawangan Melaka</p>
+        </div>
       </article>
-      <article class="aw glass">
-        <span class="yr">2025</span><i class="ph-fill ph-medal" aria-hidden="true"></i>
-        <h3><span class="rank">Gold Award</span>, POLIKU Research and Innovation Exhibition</h3>
-        <p>For Optical World, Politeknik Kuching Sarawak</p>
+      <article class="aw" data-rise>
+        <span class="yr">2025</span><i class="ph ph-medal" aria-hidden="true"></i>
+        <div>
+          <h3><span class="rank">Gold Award</span>, POLIKU Research and Innovation Exhibition</h3>
+          <p>For Optical World, Politeknik Kuching Sarawak</p>
+        </div>
       </article>
-      <article class="aw glass">
-        <span class="yr">2024</span><i class="ph-fill ph-trophy" aria-hidden="true"></i>
-        <h3><span class="rank">Champion</span>, Web Technology Competition</h3>
-        <p>Politeknik Kuching Sarawak</p>
+      <article class="aw" data-rise>
+        <span class="yr">2024</span><i class="ph ph-trophy" aria-hidden="true"></i>
+        <div>
+          <h3><span class="rank">Champion</span>, Web Technology Competition</h3>
+          <p>Politeknik Kuching Sarawak</p>
+        </div>
       </article>
-      <article class="aw glass">
-        <span class="yr">2022</span><i class="ph-fill ph-medal" aria-hidden="true"></i>
-        <h3><span class="rank">Second Place</span>, JomLaunch Youth Innovation</h3>
-        <p>Web Development, Dewan Perniagaan Melayu Malaysia, Kuala Lumpur</p>
+      <article class="aw" data-rise>
+        <span class="yr">2022</span><i class="ph ph-medal" aria-hidden="true"></i>
+        <div>
+          <h3><span class="rank">Second Place</span>, JomLaunch Youth Innovation</h3>
+          <p>Web Development, Dewan Perniagaan Melayu Malaysia, Kuala Lumpur</p>
+        </div>
       </article>
-      <article class="aw glass">
-        <span class="yr">2023, 2025</span><i class="ph-fill ph-certificate" aria-hidden="true"></i>
-        <h3>WorldSkills Malaysia Sarawak</h3>
-        <p>Competitor, Web Technology category, MIETD Sarawak</p>
+      <article class="aw" data-rise>
+        <span class="yr">2023, 2025</span><i class="ph ph-certificate" aria-hidden="true"></i>
+        <div>
+          <h3>WorldSkills Malaysia Sarawak</h3>
+          <p>Competitor, Web Technology category, MIETD Sarawak</p>
+        </div>
       </article>
-    </div>
-    <div class="rail-nav">
-      <button class="icon-btn btn-ghost" type="button" id="awPrev" aria-label="Previous awards"><i class="ph ph-arrow-left" aria-hidden="true"></i></button>
-      <button class="icon-btn btn-ghost" type="button" id="awNext" aria-label="More awards"><i class="ph ph-arrow-right" aria-hidden="true"></i></button>
     </div>
 
     <!-- Certificates render from the CERTS array in the script below.
@@ -526,14 +559,13 @@ try{var _t=localStorage.getItem('theme');if(_t)_r.setAttribute('data-theme',_t);
 
     <div class="about-grid">
       <div class="about-body" data-rise>
-        <figure class="portrait"><img src="elvin.jpg" alt="Portrait of Elvin Harrizon" width="1040" height="1175" loading="lazy" decoding="async"></figure>
         <p>I build full-stack web systems, mostly Laravel or Flask on MySQL. Those include an intranet for Hospital Serian, a vendor management system with automated PDF extraction, and a school system built together with a developer in Perak.</p>
         <p>I also work hands-on with infrastructure. I have configured LANs and routers, and today I support users, networks and the server room in hospital ICT operations. So I think about how a system gets deployed, secured and supported, not only how it looks.</p>
         <p>I finished my Diploma in Information Technology at Politeknik Kuching Sarawak on the Dean's List in all six semesters, and I am now looking for an IT role around Kuching or Sri Aman.</p>
       </div>
 
       <div data-rise>
-        <div class="sub" style="margin-top:0">
+        <div class="sub">
           <h3>Education</h3>
           <div class="edu glass">
             <h4>Diploma in Information Technology (Digital)</h4>
@@ -611,9 +643,6 @@ try{var _t=localStorage.getItem('theme');if(_t)_r.setAttribute('data-theme',_t);
 
 <script src="vendor/gsap/gsap.min.js" defer></script>
 <script src="vendor/gsap/ScrollTrigger.min.js" defer></script>
-
-
 <script src="assets/site.js" defer></script>
-<script src="assets/machine.bundle.js" defer></script>
 </body>
 </html>

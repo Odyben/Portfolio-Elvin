@@ -1,42 +1,41 @@
+/* Three variable faces, woff2.
+
+   This used to be six static TrueType files, one per weight, 72KB each:
+   432KB of uncompressed font on the critical path, roughly three times
+   the weight of the hero photograph. The variable woff2 equivalents
+   cover the same weight ranges in 52KB total.
+
+   Geist and Geist Mono: SIL Open Font License 1.1.
+   Bricolage Grotesque: SIL Open Font License 1.1. */
+
 @font-face {
   font-family: 'Geist';
   font-style: normal;
-  font-weight: 300;
+  font-weight: 300 600;
   font-display: swap;
-  src: url(font-0.ttf) format('truetype');
+  src: url(geist-var.woff2) format('woff2');
 }
-@font-face {
-  font-family: 'Geist';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url(font-1.ttf) format('truetype');
-}
-@font-face {
-  font-family: 'Geist';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url(font-2.ttf) format('truetype');
-}
-@font-face {
-  font-family: 'Geist';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url(font-3.ttf) format('truetype');
-}
+
 @font-face {
   font-family: 'Geist Mono';
   font-style: normal;
-  font-weight: 400;
+  font-weight: 400 500;
   font-display: swap;
-  src: url(font-4.ttf) format('truetype');
+  src: url(geist-mono-var.woff2) format('woff2');
 }
+
+/* Display face. Variable on wdth 75-100 and wght 200-800, so the
+   font-variation-settings used on headings actually resolve.
+
+   The weight range matters: the project titles set a thin line against
+   a heavy one, and the file carries weights down to 200. Declaring the
+   narrower 500-800 range here clamped the thin line to 500 and the
+   contrast disappeared, even though the glyphs were in the file. */
 @font-face {
-  font-family: 'Geist Mono';
+  font-family: 'Bricolage Grotesque';
   font-style: normal;
-  font-weight: 500;
+  font-weight: 200 800;
+  font-stretch: 75% 100%;
   font-display: swap;
-  src: url(font-5.ttf) format('truetype');
+  src: url(bricolage-var.woff2) format('woff2');
 }
