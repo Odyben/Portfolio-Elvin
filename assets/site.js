@@ -17,7 +17,11 @@ const boot = () => {
   const G = window.gsap, ST = window.ScrollTrigger;
   const motion = !!(G && ST) && !reduce;
   let sheetOpen = false;
-  if (G && ST) { G.registerPlugin(ST); ST.config({ ignoreMobileResize: true, limitCallbacks: true }); }
+  /* limitCallbacks stays off. With it on, a trigger that a jump skips over
+     (the nav links, Back to top) never fires onEnter, and anything that
+     starts hidden and waits for it, the blog photos and the stickers, stays
+     hidden for good. */
+  if (G && ST) { G.registerPlugin(ST); ST.config({ ignoreMobileResize: true }); }
   if (motion) scrollTo(0, 0);
 
   /* ---------- theme ---------- */
@@ -84,8 +88,11 @@ const boot = () => {
       });
     });
   } else {
-    new IntersectionObserver(es => nav.classList.toggle('on', !es[0].isIntersecting),
-      { rootMargin: '-40px 0px 0px 0px' }).observe($('#top'));
+    /* #top is <main>, which never leaves the viewport, so an observer on
+       it never fired; read the scroll position instead */
+    const onScroll = () => nav.classList.toggle('on', scrollY > 40);
+    addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
   }
 
   /* ---------- mobile sheet ---------- */
@@ -156,6 +163,61 @@ const boot = () => {
     mt.appendChild(c);
   }
 
+  /* ---------- deck motion: the cover word, stickers, blog tiles ----------
+     All scroll-driven and transform-led, the way the reference deck moves
+     between slides. Each one says something: the cover word slides off as
+     the cover leaves, a sticker lands when its headline arrives, and the
+     photos of a post come in as a set. Nothing here runs under reduced
+     motion or without GSAP, and none of it touches the LCP elements'
+     opacity. */
+  if (motion) {
+    /* the cover word drifts left and the portrait lifts away as the hero
+       scrolls out; parents only, so the CSS intro on the letters and the
+       photo is never fought over */
+    const hero = $('.hero');
+    if (hero) {
+      G.to('.giant', {
+        xPercent: -9, ease: 'none',
+        scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: .4 }
+      });
+      G.to('.hero-photo', {
+        y: -60, rotation: 3, ease: 'none',
+        scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: .4 }
+      });
+    }
+
+    /* stickers slap on when their headline comes into view; GSAP reads
+       the -6deg from the stylesheet as the resting angle */
+    $$('.sec-h .sticker').forEach(s => {
+      G.from(s, {
+        scale: .2, rotation: -34, autoAlpha: 0, duration: .7, ease: 'back.out(2.2)',
+        scrollTrigger: { trigger: s, start: 'top 88%', once: true }
+      });
+    });
+
+    /* gallery tiles come in by the row they sit on: the gallery is taller
+       than a screen, so one trigger for all of it would play the bottom
+       row out of sight. batch groups the tiles that arrive together. */
+    const gTiles = $$('.gallery .tile');
+    if (gTiles.length) {
+      G.set(gTiles, { autoAlpha: 0, y: 40, scale: .96 });
+      ST.batch(gTiles, {
+        start: 'top 90%', once: true,
+        onEnter: b => G.to(b, { autoAlpha: 1, y: 0, scale: 1, duration: .85, stagger: .08, ease: 'expo.out', overwrite: true })
+      });
+      /* and each photo drifts inside its frame as it crosses the screen,
+         the slow depth of the deck's slides. The image is scaled up just
+         enough that the drift never shows an edge; the clip stays still
+         so its controls do not move under a finger. */
+      $$('.gallery button.tile img').forEach(img => {
+        G.fromTo(img, { yPercent: -6, scale: 1.14 }, {
+          yPercent: 6, scale: 1.14, ease: 'none',
+          scrollTrigger: { trigger: img.parentNode, start: 'top bottom', end: 'bottom top', scrub: .5 }
+        });
+      });
+    }
+  }
+
   /* ---------- work: orbit carousel ----------
      One master timeline holds every transition back to back, one unit
      of time per project, and the page scroll scrubs it. So the swing
@@ -199,7 +261,12 @@ const boot = () => {
 
     /* where the band rests behind each project, as [start, end] angles
        in degrees: 0 points right, 90 straight down from the pivot. */
-    const REST = [[64, 114], [60, 120], [70, 118], [58, 112], [66, 124]];
+    /* Right end kept clear of the title column: at 70 degrees the band's
+       outer edge reaches x 527, and the titles start at 532, and an orange
+       title over the orange band simply disappears. Left end runs well
+       past the screenshot, so the band reads as a swoosh sweeping out
+       from behind it instead of hiding under it. */
+    const REST = [[71, 132], [73, 128], [70, 136], [72, 130], [71, 134]];
     const SWEEP = [46, 136];     // stretched, mid-swap
     const restFor = i => REST[((i % REST.length) + REST.length) % REST.length];
 
@@ -411,11 +478,22 @@ const boot = () => {
           end: () => '+=' + Math.round(steps * innerHeight * PER),
           pin: true,
           anticipatePin: 1,
+          /* Refresh this one first. Every trigger further down the page was
+             created earlier in this file, so by default they measured before
+             this pin existed and all sat 2520px too high: the nav lit the
+             wrong section and the experience rail was drawn before you
+             reached it. */
+          refreshPriority: 1,
           invalidateOnRefresh: true,
           animation: master,
           scrub: .7,
           snap: {
             snapTo: 'labels',
+            /* Nearest project, never where the momentum would have landed.
+               With velocity projection on, PageDown, Space or a quick
+               trackpad flick flung the stage straight to the last project
+               and the three between were never seen. */
+            inertia: false,
             duration: { min: .2, max: .6 },
             delay: .05,
             ease: 'power1.inOut'
@@ -425,6 +503,8 @@ const boot = () => {
             if (s !== at) { at = s; marks(); }
           }
         });
+        ST.sort();
+        ST.refresh();
 
         return () => {
           on = false;
@@ -768,6 +848,59 @@ const boot = () => {
     if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
     if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   });
+
+  /* ---------- blog photo viewer ----------
+     A native <dialog>: showModal gives the focus trap, Escape and the
+     inert page for free. Every photo button carries its full-size path,
+     caption and description, so the viewer reads from the markup and a
+     new photo needs no script change. */
+  const pv = $('#pv');
+  if (pv && typeof pv.showModal === 'function') {
+    const tiles = $$('#blog button.tile');
+    const n = tiles.length;
+    const pvImg = $('#pvImg'), pvCount = $('#pvCount');
+    let k = 0, opener = null;
+
+    const show = () => {
+      const t = tiles[k];
+      pvImg.src = t.dataset.full;
+      pvImg.alt = `Photo ${k + 1} of ${n}`;
+      pvImg.width = +t.dataset.w; pvImg.height = +t.dataset.h;
+      /* Size the picture to fit the screen, so the panel wraps it. Left to
+         the width attribute, a portrait photo sat in a panel as wide as a
+         landscape one, with black bars down both sides. */
+      const w = +t.dataset.w, h = +t.dataset.h;
+      const s = Math.min((Math.min(innerWidth * .94, 1100) - 24) / w, Math.min(innerHeight * .78, 840) / h, 1);
+      pvImg.style.width = Math.round(w * s) + 'px';
+      pvImg.style.height = Math.round(h * s) + 'px';
+      pvCount.textContent = `${k + 1} / ${n}`;
+      /* warm the neighbours so the arrows feel instant */
+      [tiles[(k + 1) % n], tiles[(k - 1 + n) % n]].forEach(x => { const im = new Image(); im.src = x.dataset.full; });
+    };
+    const move = d => { k = (k + d + n) % n; show(); };
+
+    tiles.forEach((t, i) => t.addEventListener('click', () => {
+      k = i; opener = t;
+      show();
+      pv.showModal();
+      root.style.overflow = 'hidden';
+      lenis && lenis.stop();
+    }));
+    pv.addEventListener('close', () => {
+      root.style.overflow = '';
+      lenis && lenis.start();
+      opener && opener.focus();
+    });
+    $('#pvPrev').addEventListener('click', () => move(-1));
+    $('#pvNext').addEventListener('click', () => move(1));
+    $('#pvClose').addEventListener('click', () => pv.close());
+    /* a click on the backdrop lands on the dialog element itself */
+    pv.addEventListener('click', e => { if (e.target === pv) pv.close(); });
+    pv.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight') { e.preventDefault(); move(1); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); move(-1); }
+    });
+  }
 
   /* ---------- refresh reveals across resize ---------- */
   if (motion) {

@@ -39,3 +39,45 @@
   font-display: swap;
   src: url(bricolage-var.woff2) format('woff2');
 }
+
+/* Stand-ins for the display face, used only until it arrives.
+
+   Bricolage is the largest file here and is not preloaded (see the note
+   in index.html), so on a slow first visit the headings paint in a
+   system face first. An unadjusted Arial is 1.8 times as wide as
+   Bricolage at wdth 80: the hero name wrapped onto a second line and
+   jumped back when the real face landed, which was most of the page's
+   layout shift. Each stand-in below is scaled so a heading line
+   measures about the same width in it as in Bricolage, measured on
+   uppercase 800 text at wdth 80, the setting most headings use.
+   They are tried in order, so the closest match a device has wins.
+   The weight range stops the browser from synthesising bold on them. */
+@font-face {
+  font-family: 'Bricolage Fallback Impact';
+  font-weight: 200 800;
+  src: local('Impact');
+  size-adjust: 87%;
+  ascent-override: 100%;
+  descent-override: 29%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Bricolage Fallback Narrow';
+  font-weight: 200 800;
+  src: local('Arial Narrow Bold'), local('ArialNarrow-Bold');
+  size-adjust: 78%;
+  ascent-override: 112%;
+  descent-override: 33%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Bricolage Fallback Arial';
+  font-weight: 200 800;
+  src: local('Arial Bold'), local('Arial-BoldMT'), local('Roboto Bold'), local('Roboto-Bold');
+  size-adjust: 56%;
+  ascent-override: 155%;
+  descent-override: 45%;
+  line-gap-override: 0%;
+}

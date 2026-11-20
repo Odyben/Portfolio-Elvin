@@ -15,3 +15,7 @@ node_modules/
 dist/
 .work/
 redesign.txt
+
+# Raw source material for the redesign (WhatsApp exports). The site
+# serves the optimised copies in blog/; the originals stay local.
+New Creative/
