@@ -19,7 +19,7 @@ const boot = () => {
   let sheetOpen = false;
   /* limitCallbacks stays off. With it on, a trigger that a jump skips over
      (the nav links, Back to top) never fires onEnter, and anything that
-     starts hidden and waits for it, the blog photos and the stickers, stays
+     starts hidden and waits for it, the gallery photos and the stickers, stays
      hidden for good. */
   if (G && ST) { G.registerPlugin(ST); ST.config({ ignoreMobileResize: true }); }
   if (motion) scrollTo(0, 0);
@@ -163,11 +163,11 @@ const boot = () => {
     mt.appendChild(c);
   }
 
-  /* ---------- deck motion: the cover word, stickers, blog tiles ----------
+  /* ---------- deck motion: the cover word, stickers, gallery tiles ----------
      All scroll-driven and transform-led, the way the reference deck moves
      between slides. Each one says something: the cover word slides off as
      the cover leaves, a sticker lands when its headline arrives, and the
-     photos of a post come in as a set. Nothing here runs under reduced
+     gallery photos come in by row. Nothing here runs under reduced
      motion or without GSAP, and none of it touches the LCP elements'
      opacity. */
   if (motion) {
@@ -849,14 +849,62 @@ const boot = () => {
     if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   });
 
-  /* ---------- blog photo viewer ----------
+  /* ---------- gallery clip ----------
+     The clip plays muted and on a loop while it is on screen and stops
+     when it leaves. Nothing loads until the reader is within half a
+     screen of it, so a visit that never reaches the gallery costs no
+     video. Reduced motion or a data saver keeps the poster and the
+     browser's own controls, as it is without script. A pause from the
+     reader holds until they press play again. */
+  const clip = $('#clip');
+  const vid = clip && $('video', clip);
+  const saveData = !!(navigator.connection && navigator.connection.saveData) ||
+    matchMedia('(prefers-reduced-data: reduce)').matches;
+  if (vid && !reduce && !saveData && 'IntersectionObserver' in window) {
+    const playBtn = $('#clipPlay'), soundBtn = $('#clipSound');
+    let held = false;
+    vid.controls = false;
+    vid.muted = vid.defaultMuted = true;
+    vid.loop = true;
+    $('.clip-ctl', clip).hidden = false;
+
+    const paint = () => {
+      clip.classList.toggle('clip-paused', vid.paused);
+      playBtn.setAttribute('aria-label', vid.paused ? 'Play video' : 'Pause video');
+    };
+    vid.addEventListener('play', paint);
+    vid.addEventListener('pause', paint);
+    /* a browser can still refuse autoplay, Low Power Mode on iOS for one;
+       the clip then shows as paused and the play button starts it */
+    const go = () => { const p = vid.play(); if (p) p.catch(paint); };
+
+    new IntersectionObserver(([e], o) => {
+      if (e.isIntersecting) { vid.preload = 'auto'; o.disconnect(); }
+    }, { rootMargin: '0px 0px 50% 0px' }).observe(vid);
+    new IntersectionObserver(([e]) => {
+      if (e.intersectionRatio >= .35) { if (!held) go(); }
+      else vid.pause();
+    }, { threshold: [0, .35] }).observe(vid);
+
+    playBtn.addEventListener('click', () => {
+      held = !vid.paused;
+      held ? vid.pause() : go();
+    });
+    soundBtn.addEventListener('click', () => {
+      vid.muted = !vid.muted;
+      soundBtn.setAttribute('aria-pressed', String(!vid.muted));
+    });
+    paint();
+  }
+
+  /* ---------- gallery photo viewer ----------
      A native <dialog>: showModal gives the focus trap, Escape and the
-     inert page for free. Every photo button carries its full-size path,
-     caption and description, so the viewer reads from the markup and a
-     new photo needs no script change. */
+     inert page for free. Every photo button carries its full-size path
+     and size, so the viewer reads from the markup and a new photo needs
+     no script change. */
   const pv = $('#pv');
   if (pv && typeof pv.showModal === 'function') {
-    const tiles = $$('#blog button.tile');
+    const tiles = $$('#gallery button.tile');
     const n = tiles.length;
     const pvImg = $('#pvImg'), pvCount = $('#pvCount');
     let k = 0, opener = null;

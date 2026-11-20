@@ -58,7 +58,7 @@ try{var _t=localStorage.getItem('theme');if(_t)_r.setAttribute('data-theme',_t);
         <a href="#skills">Skills</a>
         <a href="#awards">Awards</a>
         <a href="#about">About</a>
-        <a href="#blog">Blog</a>
+        <a href="#gallery">Gallery</a>
       </nav>
       <button class="icon-btn theme-ico" id="themeBtn" type="button" aria-label="Switch colour theme">
         <i class="ph ph-sun" aria-hidden="true"></i><i class="ph ph-moon" aria-hidden="true"></i>
@@ -78,7 +78,7 @@ try{var _t=localStorage.getItem('theme');if(_t)_r.setAttribute('data-theme',_t);
   <a href="#skills">Skills</a>
   <a href="#awards">Awards</a>
   <a href="#about">About</a>
-  <a href="#blog">Blog</a>
+  <a href="#gallery">Gallery</a>
   <a href="#contact">Get in touch</a>
   <div class="sheet-foot">
     <span>elvinharrizon90@gmail.com</span><span>Sri Aman, Sarawak</span>
@@ -597,23 +597,29 @@ try{var _t=localStorage.getItem('theme');if(_t)_r.setAttribute('data-theme',_t);
   </div>
 </section>
 
-<!-- ============================ BLOG ============================
+<!-- =========================== GALLERY ===========================
      Photos and one clip, no captions: the owner asked for the pictures
      to speak for themselves and for nothing to name people or places.
      File names are neutral for the same reason.
      ============================================================= -->
-<section class="sec blog-sec" id="blog">
+<section class="sec gallery-sec" id="gallery">
   <span class="swoosh" aria-hidden="true"></span>
   <div class="wrap">
     <div class="sec-h" data-rise>
       <h2><em>Behind</em> the work</h2>
-      <span class="sticker" aria-hidden="true"><b>Bl</b>og</span>
+      <span class="sticker" aria-hidden="true"><b>Ga</b>llery</span>
     </div>
 
     <div class="gallery">
       <button class="tile g-a" type="button" data-full="blog/photo-01.webp" data-w="1080" data-h="608" aria-label="Open photo 1 of 8"><img src="blog/photo-01-sm.webp" srcset="blog/photo-01-sm.webp 640w, blog/photo-01.webp 1080w" sizes="(max-width: 640px) 100vw, 800px" alt="" width="640" height="360" loading="lazy" decoding="async"></button>
       <button class="tile g-b" type="button" data-full="blog/photo-02.webp" data-w="1080" data-h="498" aria-label="Open photo 2 of 8"><img src="blog/photo-02-sm.webp" srcset="blog/photo-02-sm.webp 640w, blog/photo-02.webp 1080w" sizes="(max-width: 640px) 100vw, 800px" alt="" width="640" height="295" loading="lazy" decoding="async"></button>
-      <div class="tile g-v video"><video controls playsinline preload="none" poster="blog/clip-poster.webp" width="576" height="1024" aria-label="Video, 15 seconds"><source src="blog/clip.mp4" type="video/mp4"></video></div>
+      <div class="tile g-v video" id="clip">
+        <video controls playsinline preload="none" poster="blog/clip-poster.webp" width="576" height="1024" aria-label="Video, 15 seconds"><source src="blog/clip.mp4" type="video/mp4"></video>
+        <div class="clip-ctl" role="group" aria-label="Video controls" hidden>
+          <button class="clip-btn" type="button" id="clipPlay" aria-label="Pause video"><i class="ph ph-pause" aria-hidden="true"></i><i class="ph ph-play" aria-hidden="true"></i></button>
+          <button class="clip-btn" type="button" id="clipSound" aria-label="Sound" aria-pressed="false"><i class="ph ph-speaker-simple-slash" aria-hidden="true"></i><i class="ph ph-speaker-simple-high" aria-hidden="true"></i></button>
+        </div>
+      </div>
       <button class="tile g-p" type="button" data-full="blog/photo-03.webp" data-w="810" data-h="1080" aria-label="Open photo 3 of 8"><img src="blog/photo-03-sm.webp" srcset="blog/photo-03-sm.webp 480w, blog/photo-03.webp 810w" sizes="(max-width: 640px) 50vw, 300px" alt="" width="480" height="640" loading="lazy" decoding="async"></button>
       <button class="tile g-p" type="button" data-full="blog/photo-04.webp" data-w="810" data-h="1080" aria-label="Open photo 4 of 8"><img src="blog/photo-04-sm.webp" srcset="blog/photo-04-sm.webp 480w, blog/photo-04.webp 810w" sizes="(max-width: 640px) 50vw, 300px" alt="" width="480" height="640" loading="lazy" decoding="async"></button>
       <button class="tile g-p" type="button" data-full="blog/photo-05.webp" data-w="810" data-h="1080" aria-label="Open photo 5 of 8"><img src="blog/photo-05-sm.webp" srcset="blog/photo-05-sm.webp 480w, blog/photo-05.webp 810w" sizes="(max-width: 640px) 50vw, 300px" alt="" width="480" height="640" loading="lazy" decoding="async"></button>
@@ -673,7 +679,7 @@ try{var _t=localStorage.getItem('theme');if(_t)_r.setAttribute('data-theme',_t);
   </div>
 </div>
 
-<!-- blog photo viewer -->
+<!-- gallery photo viewer -->
 <dialog class="pv" id="pv" aria-label="Photo viewer">
   <div class="pv-p">
     <div class="pv-top">

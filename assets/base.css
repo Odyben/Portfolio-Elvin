@@ -720,7 +720,7 @@ pre.code .c{color:var(--ink-3);font-style:italic}
 @media (max-width:460px){.langs{grid-template-columns:1fr}}
 
 /* =============================================================
-   BLOG: the gallery and nothing else. No captions or post text, by
+   GALLERY: photos and the clip, nothing else. No captions or text, by
    the owner's choice, so the arrangement does the work: two wide
    frames stacked beside the tall clip, a row of four portraits, then
    a portrait beside the wide group photo.
@@ -728,9 +728,9 @@ pre.code .c{color:var(--ink-3);font-style:italic}
    tile's span sets its shape: 8x2 is near 2:1, 3x2 is 3:4, 4x4 is
    near 9:16, 8x3 is 4:3. The crops stay small.
    ============================================================= */
-.blog-sec{overflow:clip}
-.blog-sec .swoosh{right:clamp(-460px,-32vw,-220px);top:clamp(80px,14vh,160px);opacity:.95}
-.blog-sec .wrap{position:relative;z-index:1}
+.gallery-sec{overflow:clip}
+.gallery-sec .swoosh{right:clamp(-460px,-32vw,-220px);top:clamp(80px,14vh,160px);opacity:.95}
+.gallery-sec .wrap{position:relative;z-index:1}
 .gallery{display:grid;gap:12px;grid-template-columns:repeat(12,minmax(0,1fr));
   grid-auto-rows:clamp(96px,12.9vw,190px)}
 .g-a{grid-column:1 / 9;grid-row:1 / 3}
@@ -747,6 +747,23 @@ button.tile::after{content:"";position:absolute;inset:0;border-radius:inherit;po
   box-shadow:inset 0 0 0 0 var(--accent);transition:box-shadow .35s var(--ease)}
 button.tile:hover::after,button.tile:focus-visible::after{box-shadow:inset 0 0 0 4px var(--accent)}
 .tile.video{background:#000}
+/* the clip plays muted on its own, so the browser bar gives way to two
+   small sticker buttons: pause, which anything that moves on its own
+   must offer, and sound. The script unhides them only when it takes the
+   clip over; otherwise the native controls stay. */
+.clip-ctl{position:absolute;left:12px;bottom:12px;display:flex;gap:8px;line-height:1}
+.clip-ctl[hidden]{display:none}
+.clip-btn{display:grid;place-items:center;width:40px;height:40px;padding:0;border-radius:50%;
+  border:2.5px solid var(--sticker-ink);background:var(--sticker);color:var(--sticker-ink);
+  font-size:18px;cursor:pointer;box-shadow:3px 3px 0 var(--sticker-ink);
+  transition:transform .2s var(--ease),box-shadow .2s var(--ease)}
+.clip-btn:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--sticker-ink)}
+.clip-btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--sticker-ink)}
+.clip-btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:50%}
+.clip-btn i{grid-area:1 / 1}
+.clip-btn .ph-play,.clip-paused .ph-pause,
+.clip-btn .ph-speaker-simple-high,.clip-btn[aria-pressed=true] .ph-speaker-simple-slash{visibility:hidden}
+.clip-paused .ph-play,.clip-btn[aria-pressed=true] .ph-speaker-simple-high{visibility:visible}
 /* a phone gets two columns, and each tile its own shape; a tile beside
    a taller one stretches to match, so the rows never leave a gap */
 @media (max-width:640px){
